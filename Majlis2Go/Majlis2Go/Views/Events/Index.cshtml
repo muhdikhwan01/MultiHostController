@@ -1,0 +1,22 @@
+﻿@model IEnumerable<Majlis2Go.Models.Domain.Event>
+@{
+    ViewData["Title"] = "Events";
+}
+<div class="container py-4">
+    <h2>Majlis2Go Events</h2>
+    <div class="row">
+        @foreach (var e in Model)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">@e.Title</h5>
+                        <p class="card-text">@e.Description?.Substring(0, Math.Min(120, e.Description?.Length ?? 0))</p>
+                        <p class="small text-muted">@e.StartDate.ToString("dd MMM yyyy HH:mm")</p>
+                        <a class="btn btn-primary" href="@Url.Action("Details", "Events", new { id = e.Id })">Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,39 @@
+﻿@model IEnumerable<EventInvitationApp.Models.Event>
+
+@{
+    ViewData["Title"] = "Events";
+}
+
+<h2 class="mb-4">Upcoming Events</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-success mb-3">➕ Create New Event</a>
+</p>
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">@item.Title</h5>
+                    <p class="card-text">
+                        <strong>Date:</strong> @item.Date.ToString("dd MMM yyyy") <br />
+                        <strong>Location:</strong> @item.Location <br />
+                        <strong>Host:</strong> @item.HostName
+                    </p>
+
+                    <p class="card-text text-success">
+                        🎉 @item.RSVPs.Count(r => r.IsAttending == true) attending
+                    </p>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Details" asp-route-id="@item.EventId" class="btn btn-primary">Details</a>
+                        <a asp-action="Edit" asp-route-id="@item.EventId" class="btn btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@item.EventId" class="btn btn-danger">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
