@@ -102,15 +102,39 @@ public class Worker : BackgroundService
                 "scripts",
                 "install-minio.ps1");
 
-            // Start PowerShell to run the script
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "powershell",  // PowerShell executable
-                Arguments = $"-ExecutionPolicy Bypass -File \"{scriptPath}\"",
+            // Configure PowerShell process
+            var process = new Process();
+            process.StartInfo.FileName = "powershell";
+            process.StartInfo.Arguments = $"-ExecutionPolicy Bypass -File \"{scriptPath}\"";
 
-                UseShellExecute = false,   // Allows redirection and background execution
-                CreateNoWindow = true      // Prevents opening a PowerShell window
-            });
+            // Allow reading script output
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
+
+            // Start script
+            process.Start();
+
+            // Capture output
+            string output = process.StandardOutput.ReadToEnd();
+            string error = process.StandardError.ReadToEnd();
+
+            // Wait until script completes
+            process.WaitForExit();
+
+            // Print logs
+            Console.WriteLine("Script Output:");
+            Console.WriteLine(output);
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                Console.WriteLine("Script Error:");
+                Console.WriteLine(error);
+            }
+
+            Console.WriteLine("MinIO installation finished.");
         }
         else
         {
