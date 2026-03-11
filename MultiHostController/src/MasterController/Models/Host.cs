@@ -8,4 +8,16 @@
         public string OS { get; set; }
         public DateTime LastHeartbeat { get; set; }
     }
+    public class DeploymentTask
+    {
+        public int Id { get; set; }
+
+        public int HostId { get; set; }
+
+        public string Command { get; set; }
+
+        public string Status { get; set; } = "Pending";
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    }
 }
