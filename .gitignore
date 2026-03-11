@@ -361,3 +361,20 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/MasterController/Controllers/HostsController.cs
+/MasterController/Controllers/HostsController.cs
+/MasterController/Models/Host.cs
+/MasterController/Properties/launchSettings.json
+/MasterController/appsettings.Development.json
+/MasterController/appsettings.json
+/MasterController/MasterController.csproj
+/MasterController/MasterController.http
+/MasterController/Program.cs
+/ClientAgent/Worker.cs
+/ClientAgent/Program.cs
+/ClientAgent/ClientAgent.csproj
+/ClientAgent/appsettings.json
+/ClientAgent/appsettings.Development.json
+/ClientAgent/Properties/launchSettings.json
+/MultiHostController.sln
+/README.md
