@@ -39,43 +39,4 @@ namespace MasterController.Controllers
             return Ok();
         }
     }
-
-    [ApiController]
-    [Route("api/tasks")]
-    public class TasksController : ControllerBase
-    {
-        private static List<DeploymentTask> tasks = new();
-
-        [HttpPost]
-        public IActionResult CreateTask(DeploymentTask task)
-        {
-            task.Id = tasks.Count + 1;
-            tasks.Add(task);
-
-            return Ok(task);
-        }
-
-        [HttpGet("{hostId}")]
-        public IActionResult GetTasksForHost(int hostId)
-        {
-            var pending = tasks
-                .Where(t => t.HostId == hostId && t.Status == "Pending")
-                .ToList();
-
-            return Ok(pending);
-        }
-
-        [HttpPost("complete/{id}")]
-        public IActionResult CompleteTask(int id)
-        {
-            var task = tasks.FirstOrDefault(t => t.Id == id);
-
-            if (task == null)
-                return NotFound();
-
-            task.Status = "Completed";
-
-            return Ok();
-        }
-    }
 }
