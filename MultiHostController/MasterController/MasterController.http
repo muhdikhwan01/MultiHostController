@@ -1,0 +1,6 @@
+@MasterController_HostAddress = http://localhost:5001
+
+GET {{MasterController_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
