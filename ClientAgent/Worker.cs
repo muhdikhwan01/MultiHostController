@@ -5,6 +5,7 @@ namespace ClientAgent;
 public class Worker : BackgroundService
 {
     private readonly HttpClient _httpClient = new HttpClient();
+    private int hostId;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -15,28 +16,31 @@ public class Worker : BackgroundService
             os = Environment.OSVersion.ToString()
         };
 
-        bool registered = false;
+        // Register host
+        var response = await _httpClient.PostAsJsonAsync(
+            "http://localhost:5200/api/hosts/register",
+            host);
 
-        while (!registered && !stoppingToken.IsCancellationRequested)
-        {
-            try
-            {
-                await _httpClient.PostAsJsonAsync(
-                    "http://localhost:5200/api/hosts/register",
-                    host);
+        var registeredHost = await response.Content.ReadFromJsonAsync<HostResponse>();
+        hostId = registeredHost.Id;
 
-                registered = true;
-            }
-            catch
-            {
-                Console.WriteLine("Master not ready. Retrying...");
-                await Task.Delay(3000);
-            }
-        }
+        Console.WriteLine($"Registered with ID {hostId}");
 
+        // Heartbeat loop
         while (!stoppingToken.IsCancellationRequested)
         {
-            await Task.Delay(10000, stoppingToken);
+            await _httpClient.PostAsync(
+                $"http://localhost:5200/api/hosts/heartbeat/{hostId}",
+                null);
+
+            Console.WriteLine("Heartbeat sent");
+
+            await Task.Delay(5000, stoppingToken);
         }
     }
+}
+
+public class HostResponse
+{
+    public int Id { get; set; }
 }
