@@ -25,5 +25,18 @@ namespace MasterController.Controllers
         {
             return Ok(hosts);
         }
+
+        [HttpPost("heartbeat/{id}")]
+        public IActionResult Heartbeat(int id)
+        {
+            var host = hosts.FirstOrDefault(h => h.Id == id);
+
+            if (host == null)
+                return NotFound();
+
+            host.LastHeartbeat = DateTime.UtcNow;
+
+            return Ok();
+        }
     }
 }
