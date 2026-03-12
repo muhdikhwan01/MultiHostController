@@ -67,15 +67,17 @@ public class Worker : BackgroundService
                 {
                     Console.WriteLine($"Executing task: {task.Command}");
 
-                    // Execute command locally on this machine
-                    ExecuteCommand(task.Command);
+                    var result = ExecuteCommand(task.Command);
 
-                    //---------------------------------------------------
-                    // STEP 5: Notify MasterController task completed
-                    //---------------------------------------------------
-                    await _httpClient.PostAsync(
-                        $"http://localhost:5200/api/tasks/complete/{task.Id}",
-                        null);
+                    await _httpClient.PostAsJsonAsync(
+                        "http://localhost:5200/api/tasks/result",
+                        new
+                        {
+                            taskId = task.Id,
+                            status = result.Success ? "Success" : "Failed",
+                            output = result.Output,
+                            completedAt = DateTime.UtcNow
+                        });
 
                     Console.WriteLine($"Task {task.Id} completed");
                 }
@@ -88,58 +90,45 @@ public class Worker : BackgroundService
         }
     }
 
-    // This method executes commands received from the MasterController
-    private void ExecuteCommand(string command)
+    private (bool Success, string Output) ExecuteCommand(string command)
     {
-        // Check if the command is to install MinIO
         if (command == "install-minio")
         {
             Console.WriteLine("Starting MinIO installation...");
 
-            // Build absolute path to the script
             string scriptPath = Path.Combine(
                 AppContext.BaseDirectory,
                 "scripts",
                 "install-minio.ps1");
 
-            // Configure PowerShell process
             var process = new Process();
+
             process.StartInfo.FileName = "powershell";
             process.StartInfo.Arguments = $"-ExecutionPolicy Bypass -File \"{scriptPath}\"";
 
-            // Allow reading script output
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
 
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.CreateNoWindow = true;
 
-            // Start script
             process.Start();
 
-            // Capture output
             string output = process.StandardOutput.ReadToEnd();
             string error = process.StandardError.ReadToEnd();
 
-            // Wait until script completes
             process.WaitForExit();
 
-            // Print logs
-            Console.WriteLine("Script Output:");
-            Console.WriteLine(output);
+            string finalOutput = output + error;
 
-            if (!string.IsNullOrEmpty(error))
-            {
-                Console.WriteLine("Script Error:");
-                Console.WriteLine(error);
-            }
+            bool success = process.ExitCode == 0;
 
-            Console.WriteLine("MinIO installation finished.");
+            Console.WriteLine(finalOutput);
+
+            return (success, finalOutput);
         }
-        else
-        {
-            Console.WriteLine($"Unknown command received: {command}");
-        }
+
+        return (false, "Unknown command");
     }
 }
 

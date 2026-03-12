@@ -54,5 +54,20 @@ namespace MasterController.Controllers
 
             return Ok(task);
         }
+
+        [HttpPost("result")]
+        public IActionResult SubmitResult(TaskResult result)
+        {
+            var task = tasks.FirstOrDefault(t => t.Id == result.TaskId);
+
+            if (task == null)
+                return NotFound();
+
+            task.Status = result.Status;
+
+            Console.WriteLine($"Task {task.Id} finished with status: {result.Status}");
+
+            return Ok();
+        }
     }
 }
