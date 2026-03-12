@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MasterController.Models;
+using MasterController.Data;
 
 namespace MasterController.Controllers
 {
@@ -7,34 +8,47 @@ namespace MasterController.Controllers
     [Route("api/hosts")]
     public class HostsController : ControllerBase
     {
-        private static List<Models.Host> hosts = new();
+        // Database context
+        private readonly AppDbContext _context;
 
-        [HttpPost("register")]
-        public IActionResult RegisterHost(Models.Host host)
+        // Constructor injection
+        public HostsController(AppDbContext context)
         {
-            host.Id = hosts.Count + 1;
+            _context = context;
+        }
+
+        // Register a new host
+        [HttpPost("register")]
+        public IActionResult RegisterHost(MasterController.Models.Host host)
+        {
             host.LastHeartbeat = DateTime.UtcNow;
 
-            hosts.Add(host);
+            _context.Hosts.Add(host);
+            _context.SaveChanges();
 
             return Ok(host);
         }
 
+        // Get all hosts
         [HttpGet]
         public IActionResult GetHosts()
         {
+            var hosts = _context.Hosts.ToList();
             return Ok(hosts);
         }
 
+        // Heartbeat update
         [HttpPost("heartbeat/{id}")]
         public IActionResult Heartbeat(int id)
         {
-            var host = hosts.FirstOrDefault(h => h.Id == id);
+            var host = _context.Hosts.FirstOrDefault(h => h.Id == id);
 
             if (host == null)
                 return NotFound();
 
             host.LastHeartbeat = DateTime.UtcNow;
+
+            _context.SaveChanges();
 
             return Ok();
         }

@@ -1,7 +1,14 @@
+using MasterController.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services
 builder.Services.AddControllers();
+
+// Register database (SQLite)
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite("Data Source=mastercontroller.db"));
 
 // Swagger / OpenAPI
 builder.Services.AddEndpointsApiExplorer();
